@@ -7,9 +7,8 @@ import ro.planet.documentum.stada.common.utils.query.QueryUtils;
 import ro.planet.documentum.stada.modules.beans.AttorneyFolder;
 import ro.planet.documentum.stada.modules.beans.AttorneyFolderInput;
 import ro.planet.documentum.stada.modules.beans.PositionHistory;
-import ro.planet.documentum.stada.modules.services.utils.IQueryBuilder;
+import ro.planet.documentum.stada.modules.services.utils.query.impl.QueryBuilder;
 import ro.planet.documentum.stada.modules.services.utils.filter.DayFilter;
-import ro.planet.documentum.stada.modules.services.utils.query.QueryBuilder;
 
 import com.documentum.com.DfClientX;
 import com.documentum.com.IDfClientX;
@@ -20,10 +19,11 @@ import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfId;
 import com.documentum.fc.common.DfLogger;
+import ro.planet.documentum.stada.modules.services.utils.query.QueryBuilderImpl;
 
 public class GetAttorneyFolder extends DfSingleDocbaseModule {
-
-  private static final IDfClientX clientx = new DfClientX();
+  private static final IDfClientX CLIENTX = new DfClientX();
+  private static final String LOGICAL_AND = "and";
 
   private IDfSession session = null;
 
@@ -41,7 +41,7 @@ public class GetAttorneyFolder extends DfSingleDocbaseModule {
         session = getSession();
       }
 
-      IDfQuery query = clientx.getQuery();
+      IDfQuery query = CLIENTX.getQuery();
       String dql = getDQLForAttorneyFolder(inputValues);
       DfLogger.debug(this, " getresults -> dql: " + dql, null, null);
       query.setDQL(dql);
@@ -117,13 +117,13 @@ public class GetAttorneyFolder extends DfSingleDocbaseModule {
 
   private String getDQLForPositionHistory(String parentId, String childId, String relationName) throws DfException {
 
-    QueryBuilder builder = new QueryBuilder();
+    QueryBuilder builder = new QueryBuilderImpl();
     builder.addSelectedType("bd_position_history ph");
     builder.addSelectedType(relationName + " rel");
     builder.addSelectedAttribute(" ph.dss_name");
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "rel.parent_id", new DfId(parentId));
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "rel.child_id=ph.r_object_id");
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "ph.dss_code", new DfId(childId));
+    builder.addClause(LOGICAL_AND, "rel.parent_id", new DfId(parentId));
+    builder.addClause(LOGICAL_AND, "rel.child_id=ph.r_object_id");
+    builder.addClause(LOGICAL_AND, "ph.dss_code", new DfId(childId));
 
     return builder.getDql();
   }
@@ -136,32 +136,32 @@ public class GetAttorneyFolder extends DfSingleDocbaseModule {
   }
 
   private String getDQLForAttorneyFolder(AttorneyFolderInput inputValues) throws DfException {
-    QueryBuilder builder = new QueryBuilder();
+    QueryBuilder builder = new QueryBuilderImpl();
     builder.addSelectedType("od_attorney_folder");
-    builder.addSelectedAttributes(new String[] {
+    builder.addSelectedAttributes(new String[]{
         "r_object_id", "r_object_type", "object_name", "dss_document_type", "dss_reg_number", "dsdt_reg_date", "dss_comment", "dss_status"
     });
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "dss_branch like '%1%'", new String[] {
-      inputValues.getDssBranch()
+    builder.addClause(LOGICAL_AND, "dss_branch like '%1%'", new String[]{
+        inputValues.getDssBranch()
     });
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "dss_document_type", inputValues.getDssDocumentType(), "=");
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "lower(dss_description) like lower('%%1%');", new String[] {
-      inputValues.getDssDescription()
+    builder.addClause(LOGICAL_AND, "dss_document_type", inputValues.getDssDocumentType(), "=");
+    builder.addClause(LOGICAL_AND, "lower(dss_description) like lower('%%1%');", new String[]{
+        inputValues.getDssDescription()
     });
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "lower(dss_uid) like lower('%%1%');", new String[] {
-      inputValues.getDssUid()
+    builder.addClause(LOGICAL_AND, "lower(dss_uid) like lower('%%1%');", new String[]{
+        inputValues.getDssUid()
     });
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "dss_reg_number like '%1%'", new String[] {
-      inputValues.getDssRegNumber()
+    builder.addClause(LOGICAL_AND, "dss_reg_number like '%1%'", new String[]{
+        inputValues.getDssRegNumber()
     });
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "dsdt_reg_date", inputValues.getDsdtRegDateFrom(), DATE_FORMAT, ">=");
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "dsdt_reg_date", inputValues.getDsdtRegDateTo(), DATE_FORMAT, "<=");
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "dsdt_issue", inputValues.getDsdtIssueFrom(), DATE_FORMAT, ">=");
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "dsdt_issue", inputValues.getDsdtIssueTo(), DATE_FORMAT, "<=");
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "dsdt_exec_date", inputValues.getDsdtExecDateFrom(), DATE_FORMAT, ">=");
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "dsdt_exec_date", inputValues.getDsdtExecDateTo(), DATE_FORMAT, "<=");
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "dss_status", inputValues.getDssStatus(), "=");
-    builder.addClause(IQueryBuilder.LOGICAL_AND, "r_modify_date", DayFilter.getFilterDate(inputValues.getModifiedDateFilterCode()), DATE_FORMAT, ">=");
+    builder.addClause(LOGICAL_AND, "dsdt_reg_date", inputValues.getDsdtRegDateFrom(), DATE_FORMAT, ">=");
+    builder.addClause(LOGICAL_AND, "dsdt_reg_date", inputValues.getDsdtRegDateTo(), DATE_FORMAT, "<=");
+    builder.addClause(LOGICAL_AND, "dsdt_issue", inputValues.getDsdtIssueFrom(), DATE_FORMAT, ">=");
+    builder.addClause(LOGICAL_AND, "dsdt_issue", inputValues.getDsdtIssueTo(), DATE_FORMAT, "<=");
+    builder.addClause(LOGICAL_AND, "dsdt_exec_date", inputValues.getDsdtExecDateFrom(), DATE_FORMAT, ">=");
+    builder.addClause(LOGICAL_AND, "dsdt_exec_date", inputValues.getDsdtExecDateTo(), DATE_FORMAT, "<=");
+    builder.addClause(LOGICAL_AND, "dss_status", inputValues.getDssStatus(), "=");
+    builder.addClause(LOGICAL_AND, "r_modify_date", DayFilter.getFilterDate(inputValues.getModifiedDateFilterCode()), DATE_FORMAT, ">=");
     return builder.getDql();
   }
 

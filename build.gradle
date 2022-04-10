@@ -3,6 +3,10 @@ plugins {
     id 'pmd'
 }
 
+test {
+    useJUnitPlatform()
+}
+
 group 'ro.planet'
 version '1.0-SNAPSHOT'
 
@@ -15,18 +19,18 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
     compile group: 'org.docx4j', name: 'docx4j', version: '3.2.2'
     compile group: 'org.docx4j', name: 'docx4j-ImportXHTML', version: '3.2.2'
     compile group: 'com.lowagie', name: 'itext', version: '2.1.7'
     compile group: 'joda-time', name: 'joda-time', version: '2.0'
     compile group: 'org.jsoup', name: 'jsoup', version: '1.10.2'
     compile group: 'net.sf.jtidy', name: 'jtidy', version: 'r938'
-//    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
     compile group: 'org.aspectj', name: 'aspectjrt', version: '1.5.4'
-//    compile group: 'commons-lang', name: 'commons-lang', version: '2.4'
-//    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.1'
-//    compile group: 'javax.xml', name: 'jaxb-impl', version: '2.1'
     compile fileTree(dir: 'libs', include: '*.jar')
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.2'
+
 }
 
 pmd {
